@@ -1,0 +1,54 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+<title>tcplib simple server example</title>
+</head>
+<body>
+<hr>
+<h2 align=center>tcplib simple server example</h2>
+<p>
+接続を受けると "Hello" と出力して接続を切る server program。
+</p>
+<hr>
+<pre>
+/* exam01.c 
+ * Simple server
+*/
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include "tcplib.h"
+
+int main(int argc, char* argv[])
+{
+	static char crlf[] = {0x0a, 0x0d};
+	SOCKET ss;
+	SOCKET sa;
+	int port;
+
+	if(argc != 2)
+	{
+		fprintf(stderr, "Usage: %s port\n", argv[0]);
+		return (-1);
+	}
+	port = atoi(argv[1]);
+
+	netlibstart();
+	ss = tcpsocket();
+	tcplisten(ss, port, 5);
+	while(1)
+	{
+		if((sa = accept(ss, 0, 0)) != INVALID_SOCKET)
+		{
+			tcpwrite(sa, "Hello", 5);
+			tcpwrite(sa, crlf, 2);
+			tcpclose(sa);
+		}
+	}
+	netlibstop();
+	return 0;
+}
+</pre>
+<hr>
+</body>
+</html>

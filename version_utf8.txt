@@ -1,0 +1,9 @@
+Version 001b (01-Oct-2008)
+- tcplib.c の中に <string.h> を含めた（memset の関係、入れ忘れていた）。
+
+Version 001a (27-Dec-2007)
+- Windows 2000/98 でも動作するように、WIN32 の時の default では gethostbyname() を使うようにし、
+  _WIN32_WINNT >= 0x0501 の時には getaddrinfo() を使うようにした。
+
+Version 001 (27-Dec-2007)
+- 初版

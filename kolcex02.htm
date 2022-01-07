@@ -1,0 +1,53 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+<title>tcplib simple client example</title>
+</head>
+<body>
+<hr>
+<h2 align=center>tcplib simple client example</h2>
+<p>
+指定した address port に接続し、接続が切られるまで、受信データを出力する client program。
+</p>
+<hr>
+<pre>
+/* exam02.c
+ * Simple Client
+*/
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include "tcplib.h"
+
+#define MYBUFSIZE 1023
+
+int main(int argc, char* argv[])
+{
+	char buf[(MYBUFSIZE + 1)];
+	int port;
+	SOCKET s;
+	int n;
+
+	if(argc != 3)
+	{
+		fprintf(stderr, "Usage: %s host port\n", argv[0]);
+		return (-1);
+	}
+	port = atoi(argv[2]);
+
+	netlibstart();
+	s = tcpsocket();
+	tcpopen(s, argv[1], port);
+	while((n = tcpread(s, buf, MYBUFSIZE)) &gt; 0)
+	{
+		buf[n] = 0;
+		printf("%s", buf);
+	}
+	tcpclose(s);
+	netlibstop();
+	return 0;
+}
+</pre>
+<hr>
+</body>
+</html>

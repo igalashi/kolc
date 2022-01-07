@@ -1,0 +1,105 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+<title>tcplib.c manual</title> 
+</head>
+<body>
+<hr>
+<div align=center>
+<h1>TCP stream socket 用 C function library</h1>
+(c) Copyright 2007, Hirofumi Fujii<br>
+(01-Oct-2008 Version 1b)<br>
+(27-Dec-2007 Version 1a)
+</div>
+<hr>
+<h2>はじめに</h2>
+tcplib.c は TCP stream socket を扱うための C の function library である。
+<ul>
+<li><a href="kolc001b.tgz">Version 001b</a>(最新版)
+<li><a href="kolc001a.tgz">Version 001a</a>
+<li><a href="kolc001.tgz">Version 001</a>(初版)
+</ul>
+Windows の場合はWINSOCK2 を使うので ws2_32.lib を link すること。
+<p>
+C で compile して C++ で使う場合は
+<pre>
+  extern "C"
+  {
+  #include "tcplib.h"
+  }
+</pre>
+
+とするのを忘れないこと。
+<p>
+Windows の場合、XP 以上であれば thread safe である関数 getaddrinfo() を使うように
+指定することができる。この場合、_WIN32_WINNT は 0x0501 以上を指定する。
+例えば exam01.c を gcc で XP 以上用 getaddrinfo() を使うように compile/link するには
+<pre>
+  gcc -DWIN32 -D_WIN32_WINNT=0x0501 exam01.c tcplib.c -lws2_32 -oexam01.exe
+</pre>
+などとする。
+<hr>
+<h2>使用法</h2>
+<h3>Network library の start</h3>
+まず、network library を start する。
+Windows の場合は WINSOCK2 が呼ばれる。Linux の場合は必要無く、あっても dummy 関数が呼ばれるだけである。
+<pre>
+  netlibstart()
+</pre>
+戻り値は 0 が正常、-1 がエラーである。なお、この library の終了は
+<pre>
+  netlibstop()
+</pre>
+である。
+<h3>Socket の生成</h3>
+次に tcp 用の socket を生成する。戻り値は SOCKET 型である。
+（Linux では tcplib.h で int 型に定義してある）。
+<pre>
+  SOCKET sd;
+  sd = tcpsocket();
+</pre>
+エラーの場合は INVALID_SOCKET が返る。これ以降、標準の socket libary 関数の socket descriptor と
+して使うことができる。
+<h3>接続</h3>
+上で述べたように、socket descriptor が与えられているので、標準 socket library の
+connect() や listen() 関数をそのまま使うことができる。ただし、これらの関数は address の設定など面倒な
+手続きが必要なので、接続関連で以下の二つの関数を用意した。
+Client として接続したければ
+<pre>
+  int tcpopen(SOCKET sd, const char* host, int port);
+</pre>
+Server として接続待ちにしたければ
+<pre>
+  int tcplisten(SOCKET sd, int port, int backlog);
+</pre>
+を呼び出す。いずれもエラー時には (-1) が返る。
+<h3>入出力</h3>
+入出力も同様に、標準 socket libary の send() や recv() 関数を使うことができる。ただし、これらは
+エラーで無くとも途中で戻ることがある。通常のファイル入出力同様に指定したサイズの入出力が完了する
+まで戻らない関数を用意した。
+<pre>
+  int tcpread(SOCKET sd, char* buf, int nbytes);
+  int tcpwrite(SOCKET sd, const char* buf, int nbytes);
+</pre>
+<h3>Socket の close</h3>
+これも Linux の場合は close() 、Windows の場合は closesocket() を呼び出すだけであるが、一応、
+以下の関数を用意した。
+<pre>
+  int tcpclose(SOCKET sd);
+</pre>
+<hr>
+<h2>使用例</h2>
+<ul>
+<li><a href="kolcex01.htm">単純な server program 例</a>
+<li><a href="kolcex02.htm">単純な client program 例</a>
+<li><a href="kolcex03.htm">http echo server の例</a>
+</ul>
+<hr>
+<h2>変更履歴</h2>
+<ul>
+<li>04-Oct-2008: exam03.c を追加。Web ページ整備。
+<li>01-Oct-2008: tcplib.c に &lt;string.h&gt; を加えた。memset の宣言のために必要（忘れていた）。
+</ul>
+<hr>
+</body>
+</html>
